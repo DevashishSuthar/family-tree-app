@@ -4,7 +4,7 @@
   "description": "App to display child to parent connections by using family tree",
   "main": "app.js",
   "engines": {
-    "node": "18.x"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "start": "node app.js"

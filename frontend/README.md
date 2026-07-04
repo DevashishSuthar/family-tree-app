@@ -1,84 +1,92 @@
-Live Demo Available on:- https://family-tree-react.netlify.app/
-# Add Values In .env & .env Development File
+# Family Tree App
 
-Please add backend api url in REACT_APP_API_URL field i.e. http://localhost:8105/api/v1 -> It is used for calling backend apis
-the value of REACT_APP_BASE_URL is http://localhost:8105 -> It is used to access images and other files from backend
+Live demo: https://family-tree-react.netlify.app/
 
-# To Install Dependencies
+An interactive family tree manager — create families, add members, and visualize
+generations as a pannable, zoomable tree.
 
-### `npm install`
+## Tech Stack
 
-# In the Project Directory, To Run Project:-
+- **React 19 + TypeScript + Vite** — app shell and build tooling
+- **TanStack Router** — file-based, type-safe client-side routing (routes auto-discovered from `src/routes/`)
+- **TanStack Query** — server state, caching, and mutations for the REST API
+- **TanStack Table** — sortable data table for the families list
+- **Zustand** — lightweight client state (loader overlay, dark-mode preference)
+- **React Hook Form + Zod** — form state and schema validation
+- **Tailwind CSS v4** — styling, fully dark-mode aware
+- **sonner** — toast notifications
+- **lucide-react** — icons
 
-### `npm start`
+## Features
 
-# Getting Started with Create React App
+- Browse all families in a sortable, searchable table with at-a-glance stats
+  (total families, total members, gender split donut chart)
+- Create a family, then build out its tree by adding members and children
+- Interactive tree view: drag to pan, buttons to zoom in/out/reset, search
+  highlights matching members
+- Profile photo upload with live preview, validated for type and size
+- Dark mode, persisted across sessions
+- Toast feedback and a global loading overlay wired through axios interceptors
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Getting Started
 
-## Available Scripts
+```bash
+pnpm install
+cp .env.example .env
+# fill in VITE_REACT_APP_API_URL and VITE_REACT_APP_BASE_URL
+pnpm dev
+```
 
-In the project directory, you can run:
+### Environment Variables
 
-### `npm start`
+| Variable                    | Description                                                              |
+| ---------------------------- | -------------------------------------------------------------------------- |
+| `VITE_REACT_APP_API_URL`    | Base URL of the Family Tree REST API, e.g. `http://localhost:8105/api/v1` |
+| `VITE_REACT_APP_BASE_URL`   | Base URL used to resolve uploaded files like profile photos, e.g. `http://localhost:8105` |
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+This app expects a running backend exposing the family/member CRUD endpoints
+(see `src/constants/ApiEndpoints.ts`). It does not include mock data — point it
+at a live API instance to use it.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Scripts
 
-### `npm test`
+```bash
+pnpm dev        # start dev server
+pnpm build      # type-check and build for production
+pnpm lint       # run eslint
+pnpm preview    # preview the production build locally
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Project Structure
 
-### `npm run build`
+```
+src/
+  routes/         file-based routes — add a file here, the route exists
+    __root.tsx           shared layout + 404 fallback (renders RootLayout)
+    index.tsx             '/'                      -> FamilyList
+    families.$familyId.members.tsx   '/families/$familyId/members' -> MembersList
+  routeTree.gen.ts  AUTO-GENERATED — do not edit, committed to git (see note below)
+  components/     reusable UI building blocks (Button, Dialog, DataTable, FamilyTree, ...)
+  configs/        axios instance + env var access
+  constants/      API endpoints, file-extension allowlists, images
+  screens/        the actual page components rendered by route files
+  services/       TanStack Query hooks per resource (FamilyService, MemberService)
+  store/          Zustand stores (loader, theme)
+  utils/          formatting helpers
+  validators/     Zod schemas for forms
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Adding a new route
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Drop a file in `src/routes/` and run `pnpm dev` (or just keep it running) — the
+TanStack Router Vite plugin watches that folder and regenerates
+`src/routeTree.gen.ts` automatically. No manual route registration needed.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- `src/routes/about.tsx` → `/about`
+- `src/routes/families.$familyId.edit.tsx` → `/families/$familyId/edit`
+- `src/routes/admin/index.tsx` or `src/routes/admin.tsx` → `/admin` (nested directories work too)
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+`routeTree.gen.ts` is intentionally **committed**, not gitignored — `pnpm build`
+runs `tsc -b` before `vite build`, and plain `tsc` doesn't know the Vite plugin
+exists to generate it, so a fresh clone would fail type-checking without it on
+disk. It's silently overwritten/kept in sync on every `pnpm dev` / `pnpm build`.

@@ -1,420 +1,141 @@
-.App {
-  text-align: center;
-  padding: 15px;
-}
+/* Family tree connector lines — kept as plain CSS because pseudo-element
+   connector geometry is awkward to express purely with Tailwind utilities. */
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.tree-node {
+  position: relative;
+  /* Critical: when this node's subtree (.tree-children) is wider than its
+     own card, a plain block layout would left-align the card against the
+     wider box below it, breaking every connector line. Flex + center
+     keeps the card centered above whatever it's parent to, no matter how
+     wide the subtree underneath grows. */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  /* z-index: 0; */
 }
 
-.App-link {
-  color: #61dafb;
+.tree-children {
+  position: relative;
+  padding-top: 2rem;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+/* Vertical drop from a parent card down into the gap above its children
+   row. Anchored at left:50% of .tree-children's own box — which, thanks
+   to align-items:center on .tree-node above, always lines up with the
+   parent card's own center, regardless of how wide the subtree is. */
+.tree-children::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 1rem;
+  /* height: calc(2rem - 1px); */
+  /* z-index: 0; behind horizontal line */
+  background-color: var(--tree-line-color, #cbd5e1);
 }
 
-.error-span {
-  color: red;
-}
-
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-}
-
-:root {
-  /* colors */
-  --black: #3e3e3e;
-  --white: #ffffff;
-  --baseBg: #e6e6e6;
-  --blue: #058aad;
-  --lightBlue: #dbf3fa;
-  /* Animation */
-  --transition: all 0.3s ease-in;
-  /* font name */
-  --roboto: 'Roboto', sans-serif;
-  --borderGap: 25px;
-}
-
-body {
-  font-size: 16px;
-  line-height: 36px;
-  color: var(--black);
-  /* font-family: var(--jameel); */
-  background-color: var(--baseBg);
-}
-
-.d_f {
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flex;
-  display: -o-flex;
+.tree-row {
+  /* NOTE: sibling-connector rules below are scoped as
+     '.tree-children > .tree-row > .tree-node' (not just '.tree-row > .tree-node').
+     This intentionally excludes the outermost root-level row, which sits
+     directly under the canvas (no .tree-children wrapper), so root member
+     cards never render a stray connector stub with nothing above them. */
+  position: relative;
   display: flex;
-}
-
-section {
-  width: 100%;
-  height: 100vh;
-  position: relative;
-  float: left;
-  z-index: 0;
-}
-
-/* ----------------[ Shajra Tree ]---------------- */
-
-/* ==============  // Mapping child  ============== */
-
-.treeMainContainer {
-  margin: 0 auto;
-  max-width: 100%;
-  width: 100vw;
-}
-
-.treeContainer {
-  width: 100%;
-  position: relative;
-  padding: 50px;
-  z-index: 0;
-}
-
-._treeRoot {
-  width: 100%;
-  position: relative;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  align-content: flex-start;
-  z-index: 0;
-}
-
-._treeBranch {
-  width: auto;
-  height: min-content;
-  position: relative;
-  min-height: 20px;
-  z-index: 0;
-}
-
-._treeRaw {
-  position: relative;
-  width: 100%;
-  z-index: 0;
-}
-
-._treeRaw.active,
- ._treeRoot.active {
-  z-index: 10;
-}
-
-._treeLeaf {
-  position: relative;
-  width: 100%;
   justify-content: center;
-  align-items: flex-start;
-  padding-bottom: var(--borderGap);
-  z-index: 1;
-  margin: 0 15px;
 }
 
-._treeData {
-  min-width: 300px;
-  height: 60px;
-  line-height: 60px;
-  text-align: center;
-  border: 1px solid #333;
-  font-size: 20px;
-  background-color: #fff;
-  padding: 0 50px;
-  white-space: nowrap;
-  position: relative;
-  text-align: center;
-  margin-right: 10px;
-  z-index: 0;
-}
-
-._treeData:last-child {
-  margin-right: 0;
-}
-
-._NewBranch {
-  position: relative;
-  justify-content: center;
-  align-content: flex-start;
-  align-items: flex-start;
-}
-
-._NewBranch>div {
-  flex: 1;
-}
-
-/* ==============  Table Cell Data  ============== */
-
-.t_Data {
-  margin: 0 auto;
-  position: relative;
-  width: auto;
-  max-width: 250px;
-  min-width: 250px;
-  height: 50px;
-  background-color: var(--white);
-  color: var(--green);
-  align-items: center;
-  padding: 0 10px;
-  border-radius: 5px;
-  transition: var(--transition);
-  cursor: pointer;
-  z-index: 1;
-}
-
-.t_Data p {
-  flex: 1;
-  font-size: 16px;
-  text-align: center;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
-.t_Data:hover,
- .t_Data.active {
-  background-color: var(--blue);
-  color: var(--white);
-}
-
-.t_Data:hover ._readMore, 
-.t_Data.active ._readMore {
-  /* background-image: url('../images/moreWhite.svg'); */
-}
-
-.t_Data.active {
-  background-color: var(--blue);
-  z-index: 10;
-}
-
-.t_Data.active ._readMore {
-  transform: rotate(0deg);
-}
-
-.t_Data.active .optnsCnt {
-  display: block;
-}
-
-.t_Data.active .optnBx {
-  margin-top: 0;
-}
-
-.optnsCnt {
-  position: absolute;
-  top: calc(100% + 5px);
-  left: 0;
-  width: 100%;
-  /* display: none; */
-  overflow: hidden;
-}
-
-.optnBx {
-  position: relative;
-  height: 65px;
-  background-color: var(--white);
-  border-radius: 5px;
-  justify-content: center;
-  align-items: center;
-  align-content: center;
-  padding: 8px 6px;
-  margin-bottom: 5px;
-  margin-top: -200px;
-  transition: var(--transition);
-}
-
-.optnBx::after {
+/* Horizontal line (CENTER LINE) */
+.tree-children > .tree-row > .tree-node::before {
   content: '';
+  position: absolute;
+  top: -1rem; /* center point */
+  height: 1px;
+  background-color: var(--tree-line-color, #cbd5e1);
+}
+
+/* Vertical stub from the shared horizontal bar down into each child's own
+   card. Anchored at left:50% of THAT CHILD's own box — correct no matter
+   how wide that child's own subtree makes its box. */
+.tree-children > .tree-row > .tree-node::after {
+  content: '';
+  position: absolute;
+  top: -1rem;
+  left: 50%;
+  transform: translateX(-50%);
   width: 1px;
-  height: 20px;
-  background-color: #333;
-  position: absolute;
-  left: calc(50% - 0.5px);
-  top: calc(50% - 10px);
+  height: 1rem;
+  background-color: var(--tree-line-color, #cbd5e1);
+  /* z-index: 0; */
 }
 
-.optnBx a {
-  flex: 1;
-  position: relative;
-  height: 100%;
-  margin: 2px;
-  line-height: 55px;
-  border-radius: 5px;
-  font-size: 24px;
-  text-align: right;
-  padding: 0 15px 0 10px;
-  transition: var(--transition);
-}
-
-.optnBx a i {
-  width: 30px;
-  font-size: 22px;
-  margin-left: 10px;
-}
-
-.optnBx a:hover {
-  background-color: var(--blue);
-  color: var(--white);
-}
-
-/* ==============  // Table Cell Data  ============== */
-
-/* ==============  Mapping Cell/children  ============== */
-
-.hasChild>._treeRaw::after,
- .hasChildren>._treeRaw::after {
-  content: '';
-  width: 1px;
-  height: var(--borderGap);
-  position: absolute;
-  top: calc(100% - var(--borderGap));
-  left: calc(50% - 0.5px);
-  background-color: #555;
-}
-
-.hasChild>._treeRaw:last-child::after {
-  display: none;
-}
-
-.hasChildren>._NewBranch {
-  padding-top: var(--borderGap);
-}
-
-.hasChildren>._NewBranch>._treeRoot::before,
- .hasChildren>._NewBranch>._treeRoot::after {
-  display: block;
-}
-
-._NewBranch>._treeRoot::before,
- ._NewBranch>._treeRoot::after {
-  display: none;
+/*
+ * Horizontal bar connecting siblings — built PER CHILD instead of one
+ * row-wide bar.
+ *
+ * The previous approach drew a single `.tree-row::before` spanning the
+ * row with a fixed inset (e.g. `left: 5.5rem; right: 5.5rem`), assuming
+ * every card in the row was the same fixed width. That assumption breaks
+ * the moment any sibling has its own children: that sibling's `.tree-node`
+ * box grows to fit its whole subtree (see the align-items:center comment
+ * above), so the row's total box width is no longer "N cards + gaps" —
+ * the fixed inset then lands nowhere near the actual card centers,
+ * producing the long, disconnected lines from the screenshot.
+ *
+ * Fix: give each node its own `::before` segment sized to its own box
+ * width plus half the row's gap on each side. Because every segment is
+ * anchored to ITS OWN node's edges (0% / 100%), it's correct regardless
+ * of that node's width, and adjacent segments always meet exactly at the
+ * midpoint of the gap between them — no row-wide measurement needed.
+ */
+.tree-children > .tree-row > .tree-node::before {
   content: '';
   position: absolute;
+  /* top: -1px; */
+  top: -1rem;
+  height: 1px;
+  background-color: var(--tree-line-color, #cbd5e1);
+  z-index: 1; /* ABOVE vertical line → fixes hanging issue */
+}
+
+/* Half-gap overhang must match the row's actual `gap-*` utility so
+   adjacent segments meet exactly in the middle of the gap. */
+.tree-children > .tree-row.gap-8 > .tree-node::before {
+  left: -1rem;
+  right: -1rem;
+}
+
+.tree-children > .tree-row.gap-6 > .tree-node::before {
+  left: -0.75rem;
+  right: -0.75rem;
+}
+
+/* Edge children don't overhang on the side with no neighbor. */
+.tree-children > .tree-row > .tree-node:first-child::before {
+  /* left: 0; */
+  left: 50%;
+}
+
+.tree-children > .tree-row > .tree-node:last-child::before {
+  /* right: 0; */
   right: 50%;
-  width: 50%;
-  height: var(--borderGap);
-  top: calc(0% - var(--borderGap));
-  border-top: 1px solid #333;
 }
 
-._NewBranch>._treeRoot::before {
-  right: 0;
-}
-
-._NewBranch>._treeRoot::after {
-  left: 0;
-}
-
-._NewBranch>._treeRoot:first-child::after,
-._NewBranch>._treeRoot:last-child::before {
+/* A lone child has no siblings to connect to, so there's no horizontal
+   bar to draw — hide only that segment. The vertical stub (::after) must
+   stay: it's what carries the line the rest of the way down from the
+   parent's drop (.tree-children::before, 1rem) into the child card
+   (another 1rem), together spanning the full 2rem gap. Hiding ::after
+   here was the bug — it left the line stopping halfway above an only
+   child instead of reaching it. */
+.tree-children > .tree-row > .tree-node:only-child::before {
   display: none;
 }
 
-.hasChildren>._NewBranch>._treeRoot ._treeLeaf::after {
-  content: '';
-  width: 1px;
-  position: absolute;
-  height: var(--borderGap);
-  background-color: #333;
-  bottom: 100%;
-}
-
-.profile-photo {
-  height: 50px;
-  width: 50px
-}
-
-.table-responsive {
-  margin-top: 15px;
-}
-
-.table-responsive .MuiTableContainer-root {
-  box-shadow: 0px 2px 15px rgba(10, 41, 69, 0.2);
-}
-
-.table-responsive .MuiTableContainer-root table {
-  white-space: nowrap;
-}
-
-table .MuiTableCell-root,
-table .MuiTableCell-root {
-  line-height: normal;
-  font-size: 15px;
-  color: #323232;
-  border-bottom: 1px solid #ececec;
-  letter-spacing: 0;
-  vertical-align: middle;
-  padding: 15px 10px;
-}
-
-table .MuiTableCell-root a {
-  color: #323232;
-  text-decoration: none;
-}
-
-table .MuiTableCell-root a:hover {
-  color: #838383;
-}
-
-label {
-  font-size: 14px;
-  font-weight: 400;
-  color: #323232;
-  display: block;
-}
-
-.form-group {
-  margin-bottom: 10px;
-}
-
-.radio-group {
-  margin-top: 10px;
-}
-
-.MuiDialog-paper {
-  width: 600px !important;
-}
-
-.error-span {
-  font-size: 13px;
-  font-weight: 400;
-}
-
-._loading_overlay_overlay {
-  background-color: rgba(0, 0, 0, 0.5) !important;
-  z-index: 9 !important;
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
+.dark .tree-children::before,
+.dark .tree-children > .tree-row > .tree-node::before,
+.dark .tree-children > .tree-row > .tree-node::after {
+  --tree-line-color: #475569;
 }

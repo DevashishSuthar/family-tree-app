@@ -1,6 +1,6 @@
 # Family Tree App
 
-Live demo: https://family-tree-react.netlify.app/
+Live demo: https://family-tree-mine.vercel.app/
 
 An interactive family tree manager — create families, add members, and visualize
 generations as a pannable, zoomable tree.
